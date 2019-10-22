@@ -2386,45 +2386,10 @@ class Detail extends React.Component{
                     processOne: value
                 })
             }
-            
-            // if(this.state.masterAPI.body){                
-            //     // console.log(this.state.masterAPI.body);
-            //     this.state.masterAPI.body.FaceMatches.map(                    
-            //         (order) =>
-            //         this.setState({
-            //             processOne: <p><i className="fa fa-check" aria-hidden="true"></i>{'Similarity: '+order.Similarity.toFixed(0)+'%'}</p>   
-            //         })
-            //     )
-            // }
                 
         }, 2000);
 
-        // setTimeout(() => {
 
-        //     var value = []
-
-        //     if(this.state.masterAPI.body){                                
-        //         this.state.masterAPI.body.FaceMatches.map(                    
-                    
-        //             (order) => order.Face.Landmarks.map(                         
-        //                 (order2,index) => {
-        //                     value.push(<li key={index}>{order2.Type+': '+(order2.X*100).toFixed(0)+' %'}</li>)
-        //                 }
-        //             )                    
-        //         )
-        //         this.setState({
-        //             processTwo: value
-        //         })
-        //     }
-
-        // }, 4000);
-        // setTimeout(() => {
-        //     this.setState({
-
-        //         processThree : <p><i className="fa fa-check" aria-hidden="true"></i>This is a simple hero unit, a simple jumbotron-style component</p>
-        //     })
-
-        // }, 6000);
     }
 
     fileSelectedHandler(e){
@@ -2482,20 +2447,6 @@ class Detail extends React.Component{
                 (text) => console.log(text.DetectedText)
             )
         }
-
-        // // this.state.masterAPI.body.FaceMatches.map(
-        // //     (order) => console.log(order)
-        // // )
-
-        // let similitud 
-
-        // if(this.state.masterAPI.body){
-        //     // console.log(this.state.masterAPI.body.FaceMatches)            
-        //     this.state.masterAPI.body.FaceMatches.map(
-        //         // (order) => console.log(order.Similarity)
-        //         (order) => similitud = order.Similarity
-        //     )
-        // }
 
         return (
             <Col md={12}>
