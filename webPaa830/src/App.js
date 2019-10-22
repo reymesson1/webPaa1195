@@ -211,6 +211,9 @@ class App extends React.Component{
     let dashboard = (
 
           <div>            
+            {/* <Toolbar
+                searchCallback={this.onSearch.bind(this)}
+            /> */}
             <div className="container">
                 {this.props.children}
                 {/* <Master                    
@@ -1612,17 +1615,28 @@ class MasterTable extends React.Component{
         return (
             <Col md={12}>
                 <Row>
-                <Jumbotron>
-                <h1>Monitor!</h1>
-                {this.state.processOne}
-                <ul>
-                {this.state.processTwo}
-                </ul>
-                {this.state.processThree}
-                <p>                    
-                    <Link className="btn btn-default" to={'/'} onClick={this.onRefreshed.bind(this)}>Process</Link>
-                </p>
-                </Jumbotron>
+                    <Col md={11}>
+                    <Jumbotron>
+                        <h1>Monitor!</h1>
+                            {this.state.processOne}
+                        <ul>
+                            {this.state.processTwo}
+                        </ul>
+                            {this.state.processThree}
+                        <p>                    
+                            <Link className="btn btn-default" to={'/'} onClick={this.onRefreshed.bind(this)}>Process</Link>
+                        </p>
+                    </Jumbotron>
+                    </Col>
+                    <Col md={1}>
+                    <Nav>                                            
+                      <NavDropdown style={{'float':'right','position':'absolute','left':'80%'}} eventKey={3} title="Sites" id="basic-nav-dropdown">
+                            <MenuItem eventKey={3.2}><Link onClick={this.onClicked} to="/master">Picture</Link></MenuItem>
+                            <MenuItem eventKey={3.1}><Link to="/detail">Text</Link></MenuItem>
+                      </NavDropdown>                      
+                    </Nav>
+                    
+                    </Col>
                 </Row>
                 <Row>
                     <Col md={6}>
@@ -2327,177 +2341,217 @@ class MasterModalTableBody extends React.Component{
 }
 
 class Detail extends React.Component{
-
-    constructor() {
-
+    
+    constructor(){
+        
         super();
         this.state = {
-            showModal: false,
-            filterText: '',
-            detailData: []
+
+            masterAPI: [],
+            onShowComment: "none",
+            searchData : "",
+            processOne: "",          
+            processTwo: "",         
+            processThree: ""          
         }
     }
 
     componentDidMount(){
 
-          fetch(API_URL+'/detail',{headers: API_HEADERS})
-          .then((response)=>response.json())
-          .then((responseData)=>{
-              this.setState({
+        fetch('https://2ewc1ud64h.execute-api.us-east-1.amazonaws.com/live/getcomparetext',
+        // fetch('https://2ewc1ud64h.execute-api.us-east-1.amazonaws.com/live/getcompare',
+        {headers: API_HEADERS})
+        .then((response)=>response.json())
+        .then((responseData)=>{
+            this.setState({
 
-                  detailData: responseData
-              })
-
-          })
-          .catch((error)=>{
-              console.log('Error fetching and parsing data', error);
-          })
-
-    }
-
-    close() {
-        this.setState({
-            showModal: false
-        });
-    }
-
-    open() {
-        this.setState({
-            showModal: true
-        });
-    }
-
-    onSaveDetail(event){
-
-        event.preventDefault();
-
-        let today = moment(new Date()).format('YYYY-MM-DD');
-
-        let newDetail = {
-
-            "id": Date.now(),
-            "date": today,
-            "id": event.target.id.value,
-            "name": event.target.name.value,
-            "item": event.target.item.value,
-            "environment": event.target.environment.value
-        }
-
-        let nextState = this.state.detailData;
-
-        nextState.push(newDetail);
-
-
-        fetch(API_URL+'/detail', {
-
-              method: 'post',
-              headers: API_HEADERS,
-              body: JSON.stringify(newDetail)
+                masterAPI: responseData
+            })
+        })
+        .catch((error)=>{
+            console.log('Error fetching and parsing data', error);
         })
 
-        this.setState({
+        setTimeout(() => {
 
-            detailData: nextState,
-            showModal: false
-        });
+            var value = []
+
+            if(this.state.masterAPI.body){
+                // console.log(this.state.masterAPI.body.TextDetections)
+                this.state.masterAPI.body.TextDetections.map(
+                    (text) =>  //console.log(text.DetectedText)
+                        value.push(<p>{text.DetectedText}</p>)
+                    )
+                this.setState({
+                    processOne: value
+                })
+            }
+            
+            // if(this.state.masterAPI.body){                
+            //     // console.log(this.state.masterAPI.body);
+            //     this.state.masterAPI.body.FaceMatches.map(                    
+            //         (order) =>
+            //         this.setState({
+            //             processOne: <p><i className="fa fa-check" aria-hidden="true"></i>{'Similarity: '+order.Similarity.toFixed(0)+'%'}</p>   
+            //         })
+            //     )
+            // }
+                
+        }, 2000);
+
+        // setTimeout(() => {
+
+        //     var value = []
+
+        //     if(this.state.masterAPI.body){                                
+        //         this.state.masterAPI.body.FaceMatches.map(                    
+                    
+        //             (order) => order.Face.Landmarks.map(                         
+        //                 (order2,index) => {
+        //                     value.push(<li key={index}>{order2.Type+': '+(order2.X*100).toFixed(0)+' %'}</li>)
+        //                 }
+        //             )                    
+        //         )
+        //         this.setState({
+        //             processTwo: value
+        //         })
+        //     }
+
+        // }, 4000);
+        // setTimeout(() => {
+        //     this.setState({
+
+        //         processThree : <p><i className="fa fa-check" aria-hidden="true"></i>This is a simple hero unit, a simple jumbotron-style component</p>
+        //     })
+
+        // }, 6000);
+    }
+
+    fileSelectedHandler(e){
+        
+                
+            var files = e.target.files
+            
+            if (!files.length) {
+                return alert("Please choose a file to upload first.");
+            }
+
+            var file = files[0];
+
+            var fileName = file.name;
+
+            var photoKey = "" + fileName;
+
+            var upload = new AWS.S3.ManagedUpload({
+                params: {
+                    Bucket: albumBucketName,
+                    Key: photoKey,
+                    Body: file,
+                    ACL: "public-read"
+                }
+            });
+
+            var promise = upload.promise();
+            
+            promise.then(
+                function(data) {
+                    alert("Successfully uploaded photo.");                
+                },
+                function(err) {
+                    // return alert("There was an error uploading your photo: ", err.message);
+                    console.log("There was an error uploading your photo: ", err.message);
+                }
+            );
 
     }
 
-    onHandleChange(event){
+    onRefreshed(event){
 
-        this.setState({
+        this.props.history.push("/detail")
 
-            filterText: event.target.value
-        });
-    }
-
-    onUpdated(value){
-
-        console.log(value);
-    }
-
-    onDeleted(value){
-
-        let nextState = this.state.detailData;
-
-        var index = nextState.findIndex(x=> x.id==value);
-
-        nextState.splice(index,1);
-
-        this.setState({
-
-            detailData: nextState
-        });
-
-        fetch(API_URL+'/deletedetail', {
-
-              method: 'post',
-              headers: API_HEADERS,
-              body: JSON.stringify({"index":index,"id":value})
-        })
+        window.location.reload();
     }
 
     render(){
 
-        let DetailEN = (
+        // console.log(this.state.masterAPI.body)
 
-            <Button onClick={this.open.bind(this)}>Add Detail</Button>
-        );
-
-        let DetailES = (
-
-            <Button onClick={this.open.bind(this)}>Agregar Articulo</Button>
-        );
-
-        let DetailActive;
-
-        if(languageActive){
-            DetailActive=DetailEN
-        }else{
-            DetailActive=DetailES
+        if(this.state.masterAPI.body){
+            // console.log(this.state.masterAPI.body.TextDetections)
+            this.state.masterAPI.body.TextDetections.map(
+                (text) => console.log(text.DetectedText)
+            )
         }
 
-        return(
-            <Grid>
+        // // this.state.masterAPI.body.FaceMatches.map(
+        // //     (order) => console.log(order)
+        // // )
 
-                <Row>
-                    <DetailSearch
-                                    filterText={this.state.filterText}
-                                    detailCallback={{
-                                                onHandleChange:
-this.onHandleChange.bind(this)
-                                    }}
-                    />
-                </Row>
-                <Row>
-                        <div className="pull-right">
-                            {DetailActive}
-                            <DetailModal showModal={this.state.showModal}
-                                            detailCallback={{
-                                                open:this.open,
-                                                close:this.close.bind(this),
+        // let similitud 
 
-onsavedetail:this.onSaveDetail.bind(this)
-                                            }}
-                            />
-                        </div>
-                </Row>
+        // if(this.state.masterAPI.body){
+        //     // console.log(this.state.masterAPI.body.FaceMatches)            
+        //     this.state.masterAPI.body.FaceMatches.map(
+        //         // (order) => console.log(order.Similarity)
+        //         (order) => similitud = order.Similarity
+        //     )
+        // }
+
+        return (
+            <Col md={12}>
                 <br/>
                 <Row>
-                    <DetailTable
-                                    filterText={this.state.filterText}
-                                    detailData={this.state.detailData}
-                                    detailCallback={{
-                                              onUpdated:
-this.onUpdated.bind(this),
-                                              onDeleted:
-this.onDeleted.bind(this),
-                                    }}
-                    />
+                    <Col md={11}>
+                    <Jumbotron>
+                        <h1>Monitor!</h1>
+                            {this.state.processOne}
+                        <ul>
+                            {this.state.processTwo}
+                        </ul>
+                            {this.state.processThree}
+                        <p>                    
+                            <Link className="btn btn-default" to={'/'} onClick={this.onRefreshed.bind(this)}>Process</Link>
+                        </p>
+                    </Jumbotron>
+                    </Col>
+                    <Col md={1}>
+                    <Nav>                                            
+                        <NavDropdown style={{'float':'right','position':'absolute','left':'80%'}} eventKey={3} title="Sites" id="basic-nav-dropdown">
+                            <MenuItem eventKey={3.1}><Link to="/detail">Text</Link></MenuItem>
+                            <MenuItem eventKey={3.2}><Link onClick={this.onClicked} to="/master">Picture</Link></MenuItem>
+                        </NavDropdown>                      
+                    </Nav>
+                    
+                    </Col>
                 </Row>
-            </Grid>
-        );
+                <Row>
+                    <Col md={6}>
+                        <Row>
+                            <img src={"http://localhost:8084/"+"img_avatar.png"}  alt="Avatar" style={{"width":"50%","padding-left":"10px","padding-right":"10px"}}/>
+                            {/* <img src={"https://webpaa-deployments-mobilehub-2128298286.s3.amazonaws.com/1547544106_973174_1547545265_noticia_normal.jpg"}  alt="Avatar" style={{"width":"50%","padding-left":"10px","padding-right":"10px"}}/> */}
+                        </Row>
+                        <br/>
+                        <Row>
+                            {/* <input type="file" onChange={this.fileSelectedHandler} /> */}
+                        </Row>
+                    </Col>
+                    <Col md={4}>
+                        <Row>
+                            <Panel header="Message">
+
+                            </Panel>
+                        </Row>
+                        <br/>
+                        <Row>
+                            {/* <input type="file" onChange={this.fileSelectedHandler} /> */}
+                        </Row>
+                    </Col>
+                    <Col md={1}></Col>
+                </Row>                
+            </Col>
+        )    
     }
+
 }
 
 class DetailPagination extends React.Component{

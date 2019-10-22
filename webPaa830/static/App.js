@@ -2173,27 +2173,61 @@ var MasterTable = function (_React$Component15) {
                     Row,
                     null,
                     React.createElement(
-                        Jumbotron,
-                        null,
+                        Col,
+                        { md: 11 },
                         React.createElement(
-                            "h1",
-                            null,
-                            "Monitor!"
-                        ),
-                        this.state.processOne,
-                        React.createElement(
-                            "ul",
-                            null,
-                            this.state.processTwo
-                        ),
-                        this.state.processThree,
-                        React.createElement(
-                            "p",
+                            Jumbotron,
                             null,
                             React.createElement(
-                                Link,
-                                { className: "btn btn-default", to: '/', onClick: this.onRefreshed.bind(this) },
-                                "Process"
+                                "h1",
+                                null,
+                                "Monitor!"
+                            ),
+                            this.state.processOne,
+                            React.createElement(
+                                "ul",
+                                null,
+                                this.state.processTwo
+                            ),
+                            this.state.processThree,
+                            React.createElement(
+                                "p",
+                                null,
+                                React.createElement(
+                                    Link,
+                                    { className: "btn btn-default", to: '/', onClick: this.onRefreshed.bind(this) },
+                                    "Process"
+                                )
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        Col,
+                        { md: 1 },
+                        React.createElement(
+                            Nav,
+                            null,
+                            React.createElement(
+                                NavDropdown,
+                                { style: { 'float': 'right', 'position': 'absolute', 'left': '80%' }, eventKey: 3, title: "Sites", id: "basic-nav-dropdown" },
+                                React.createElement(
+                                    MenuItem,
+                                    { eventKey: 3.2 },
+                                    React.createElement(
+                                        Link,
+                                        { onClick: this.onClicked, to: "/master" },
+                                        "Picture"
+                                    )
+                                ),
+                                React.createElement(
+                                    MenuItem,
+                                    { eventKey: 3.1 },
+                                    React.createElement(
+                                        Link,
+                                        { to: "/detail" },
+                                        "Text"
+                                    )
+                                )
                             )
                         )
                     )
@@ -3215,9 +3249,13 @@ var Detail = function (_React$Component26) {
         var _this34 = _possibleConstructorReturn(this, (Detail.__proto__ || Object.getPrototypeOf(Detail)).call(this));
 
         _this34.state = {
-            showModal: false,
-            filterText: '',
-            detailData: []
+
+            masterAPI: [],
+            onShowComment: "none",
+            searchData: "",
+            processOne: "",
+            processTwo: "",
+            processThree: ""
         };
         return _this34;
     }
@@ -3227,168 +3265,239 @@ var Detail = function (_React$Component26) {
         value: function componentDidMount() {
             var _this35 = this;
 
-            fetch(API_URL + '/detail', { headers: API_HEADERS }).then(function (response) {
+            fetch('https://2ewc1ud64h.execute-api.us-east-1.amazonaws.com/live/getcomparetext',
+            // fetch('https://2ewc1ud64h.execute-api.us-east-1.amazonaws.com/live/getcompare',
+            { headers: API_HEADERS }).then(function (response) {
                 return response.json();
             }).then(function (responseData) {
                 _this35.setState({
 
-                    detailData: responseData
+                    masterAPI: responseData
                 });
             }).catch(function (error) {
                 console.log('Error fetching and parsing data', error);
             });
+
+            setTimeout(function () {
+
+                var value = [];
+
+                if (_this35.state.masterAPI.body) {
+                    // console.log(this.state.masterAPI.body.TextDetections)
+                    _this35.state.masterAPI.body.TextDetections.map(function (text) {
+                        return (//console.log(text.DetectedText)
+                            value.push(React.createElement(
+                                "p",
+                                null,
+                                text.DetectedText
+                            ))
+                        );
+                    });
+                    _this35.setState({
+                        processOne: value
+                    });
+                }
+
+                // if(this.state.masterAPI.body){                
+                //     // console.log(this.state.masterAPI.body);
+                //     this.state.masterAPI.body.FaceMatches.map(                    
+                //         (order) =>
+                //         this.setState({
+                //             processOne: <p><i className="fa fa-check" aria-hidden="true"></i>{'Similarity: '+order.Similarity.toFixed(0)+'%'}</p>   
+                //         })
+                //     )
+                // }
+            }, 2000);
+
+            // setTimeout(() => {
+
+            //     var value = []
+
+            //     if(this.state.masterAPI.body){                                
+            //         this.state.masterAPI.body.FaceMatches.map(                    
+
+            //             (order) => order.Face.Landmarks.map(                         
+            //                 (order2,index) => {
+            //                     value.push(<li key={index}>{order2.Type+': '+(order2.X*100).toFixed(0)+' %'}</li>)
+            //                 }
+            //             )                    
+            //         )
+            //         this.setState({
+            //             processTwo: value
+            //         })
+            //     }
+
+            // }, 4000);
+            // setTimeout(() => {
+            //     this.setState({
+
+            //         processThree : <p><i className="fa fa-check" aria-hidden="true"></i>This is a simple hero unit, a simple jumbotron-style component</p>
+            //     })
+
+            // }, 6000);
         }
     }, {
-        key: "close",
-        value: function close() {
-            this.setState({
-                showModal: false
+        key: "fileSelectedHandler",
+        value: function fileSelectedHandler(e) {
+
+            var files = e.target.files;
+
+            if (!files.length) {
+                return alert("Please choose a file to upload first.");
+            }
+
+            var file = files[0];
+
+            var fileName = file.name;
+
+            var photoKey = "" + fileName;
+
+            var upload = new AWS.S3.ManagedUpload({
+                params: {
+                    Bucket: albumBucketName,
+                    Key: photoKey,
+                    Body: file,
+                    ACL: "public-read"
+                }
+            });
+
+            var promise = upload.promise();
+
+            promise.then(function (data) {
+                alert("Successfully uploaded photo.");
+            }, function (err) {
+                // return alert("There was an error uploading your photo: ", err.message);
+                console.log("There was an error uploading your photo: ", err.message);
             });
         }
     }, {
-        key: "open",
-        value: function open() {
-            this.setState({
-                showModal: true
-            });
-        }
-    }, {
-        key: "onSaveDetail",
-        value: function onSaveDetail(event) {
-            var _newDetail;
+        key: "onRefreshed",
+        value: function onRefreshed(event) {
 
-            event.preventDefault();
+            this.props.history.push("/detail");
 
-            var today = moment(new Date()).format('YYYY-MM-DD');
-
-            var newDetail = (_newDetail = {
-
-                "id": Date.now(),
-                "date": today
-            }, _defineProperty(_newDetail, "id", event.target.id.value), _defineProperty(_newDetail, "name", event.target.name.value), _defineProperty(_newDetail, "item", event.target.item.value), _defineProperty(_newDetail, "environment", event.target.environment.value), _newDetail);
-
-            var nextState = this.state.detailData;
-
-            nextState.push(newDetail);
-
-            fetch(API_URL + '/detail', {
-
-                method: 'post',
-                headers: API_HEADERS,
-                body: JSON.stringify(newDetail)
-            });
-
-            this.setState({
-
-                detailData: nextState,
-                showModal: false
-            });
-        }
-    }, {
-        key: "onHandleChange",
-        value: function onHandleChange(event) {
-
-            this.setState({
-
-                filterText: event.target.value
-            });
-        }
-    }, {
-        key: "onUpdated",
-        value: function onUpdated(value) {
-
-            console.log(value);
-        }
-    }, {
-        key: "onDeleted",
-        value: function onDeleted(value) {
-
-            var nextState = this.state.detailData;
-
-            var index = nextState.findIndex(function (x) {
-                return x.id == value;
-            });
-
-            nextState.splice(index, 1);
-
-            this.setState({
-
-                detailData: nextState
-            });
-
-            fetch(API_URL + '/deletedetail', {
-
-                method: 'post',
-                headers: API_HEADERS,
-                body: JSON.stringify({ "index": index, "id": value })
-            });
+            window.location.reload();
         }
     }, {
         key: "render",
         value: function render() {
 
-            var DetailEN = React.createElement(
-                Button,
-                { onClick: this.open.bind(this) },
-                "Add Detail"
-            );
+            // console.log(this.state.masterAPI.body)
 
-            var DetailES = React.createElement(
-                Button,
-                { onClick: this.open.bind(this) },
-                "Agregar Articulo"
-            );
-
-            var DetailActive = void 0;
-
-            if (languageActive) {
-                DetailActive = DetailEN;
-            } else {
-                DetailActive = DetailES;
+            if (this.state.masterAPI.body) {
+                // console.log(this.state.masterAPI.body.TextDetections)
+                this.state.masterAPI.body.TextDetections.map(function (text) {
+                    return console.log(text.DetectedText);
+                });
             }
 
+            // // this.state.masterAPI.body.FaceMatches.map(
+            // //     (order) => console.log(order)
+            // // )
+
+            // let similitud 
+
+            // if(this.state.masterAPI.body){
+            //     // console.log(this.state.masterAPI.body.FaceMatches)            
+            //     this.state.masterAPI.body.FaceMatches.map(
+            //         // (order) => console.log(order.Similarity)
+            //         (order) => similitud = order.Similarity
+            //     )
+            // }
+
             return React.createElement(
-                Grid,
-                null,
+                Col,
+                { md: 12 },
+                React.createElement("br", null),
                 React.createElement(
                     Row,
                     null,
-                    React.createElement(DetailSearch, {
-                        filterText: this.state.filterText,
-                        detailCallback: {
-                            onHandleChange: this.onHandleChange.bind(this)
-                        }
-                    })
+                    React.createElement(
+                        Col,
+                        { md: 11 },
+                        React.createElement(
+                            Jumbotron,
+                            null,
+                            React.createElement(
+                                "h1",
+                                null,
+                                "Monitor!"
+                            ),
+                            this.state.processOne,
+                            React.createElement(
+                                "ul",
+                                null,
+                                this.state.processTwo
+                            ),
+                            this.state.processThree,
+                            React.createElement(
+                                "p",
+                                null,
+                                React.createElement(
+                                    Link,
+                                    { className: "btn btn-default", to: '/', onClick: this.onRefreshed.bind(this) },
+                                    "Process"
+                                )
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        Col,
+                        { md: 1 },
+                        React.createElement(
+                            Nav,
+                            null,
+                            React.createElement(
+                                NavDropdown,
+                                { style: { 'float': 'right', 'position': 'absolute', 'left': '80%' }, eventKey: 3, title: "Sites", id: "basic-nav-dropdown" },
+                                React.createElement(
+                                    MenuItem,
+                                    { eventKey: 3.1 },
+                                    React.createElement(
+                                        Link,
+                                        { to: "/detail" },
+                                        "Text"
+                                    )
+                                ),
+                                React.createElement(
+                                    MenuItem,
+                                    { eventKey: 3.2 },
+                                    React.createElement(
+                                        Link,
+                                        { onClick: this.onClicked, to: "/master" },
+                                        "Picture"
+                                    )
+                                )
+                            )
+                        )
+                    )
                 ),
                 React.createElement(
                     Row,
                     null,
                     React.createElement(
-                        "div",
-                        { className: "pull-right" },
-                        DetailActive,
-                        React.createElement(DetailModal, { showModal: this.state.showModal,
-                            detailCallback: {
-                                open: this.open,
-                                close: this.close.bind(this),
-
-                                onsavedetail: this.onSaveDetail.bind(this)
-                            }
-                        })
-                    )
-                ),
-                React.createElement("br", null),
-                React.createElement(
-                    Row,
-                    null,
-                    React.createElement(DetailTable, {
-                        filterText: this.state.filterText,
-                        detailData: this.state.detailData,
-                        detailCallback: {
-                            onUpdated: this.onUpdated.bind(this),
-                            onDeleted: this.onDeleted.bind(this)
-                        }
-                    })
+                        Col,
+                        { md: 6 },
+                        React.createElement(
+                            Row,
+                            null,
+                            React.createElement("img", { src: "http://localhost:8084/" + "img_avatar.png", alt: "Avatar", style: { "width": "50%", "padding-left": "10px", "padding-right": "10px" } })
+                        ),
+                        React.createElement("br", null),
+                        React.createElement(Row, null)
+                    ),
+                    React.createElement(
+                        Col,
+                        { md: 4 },
+                        React.createElement(
+                            Row,
+                            null,
+                            React.createElement(Panel, { header: "Message" })
+                        ),
+                        React.createElement("br", null),
+                        React.createElement(Row, null)
+                    ),
+                    React.createElement(Col, { md: 1 })
                 )
             );
         }
