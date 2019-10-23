@@ -28,7 +28,8 @@ const ListGroup = ReactBootstrap.ListGroup;
 const Table = ReactBootstrap.Table;
 const Jumbotron = ReactBootstrap.Jumbotron;
 
-var albumBucketName = "webpaa-deployments-mobilehub-2128298286";
+// var albumBucketName = "webpaa-deployments-mobilehub-2128298286";
+var albumBucketName = "webpaa-deployments-mobilehub-209995345";
 var bucketRegion = "us-east-1";
 var IdentityPoolId = "us-east-1:3dd5b3b8-326c-4be6-9f32-67943932637a";
 
@@ -1486,7 +1487,10 @@ class MasterTable extends React.Component{
             searchData : "",
             processOne: "",          
             processTwo: "",         
-            processThree: ""          
+            processThree: "",
+            textLeft: "",
+            textTempLeft: "",
+            textRight: ""
         }
     }
 
@@ -1545,6 +1549,51 @@ class MasterTable extends React.Component{
             })
 
         }, 6000);
+
+        setTimeout(() => {
+
+            var compareData = []
+    
+            var params = {
+                Bucket: albumBucketName,
+                MaxKeys: 100
+            };        
+            
+            s3.listObjects(params, (err, data) =>{
+                if (err){
+                    console.log(err, err.stack);
+                }else{                               
+                    compareData=data
+                    // console.log(data)
+                    this.setState({
+                        textTempLeft: data
+                    })
+                }
+            });
+
+            
+
+            // console.log(compareData);
+            
+        }, 2000);
+
+        setTimeout(() => {
+
+            if(this.state.textTempLeft){
+                
+                this.state.textTempLeft.Contents.map(
+                    (text) => //console.log(text.LastModified)
+                        // lastMod = text.LastModified
+                        this.setState({
+                            textLeft: text.LastModified
+                        })
+
+                )
+            }
+            
+        }, 4000);
+
+
     }
 
     fileSelectedHandler(e){
@@ -1596,21 +1645,31 @@ class MasterTable extends React.Component{
 
         // if(this.state.masterAPI.body.FaceMatches){
         console.log(this.state.masterAPI.body)
+        console.log(this.state.textLeft)
+
+        // let lastMod 
+        // if(this.state.textLeft){
+            
+        //     this.state.textLeft.Contents.map(
+        //         (text) => //console.log(text.LastModified)
+        //             lastMod = text.LastModified
+        //     )
+        // }
         // }
 
         // this.state.masterAPI.body.FaceMatches.map(
         //     (order) => console.log(order)
         // )
 
-        let similitud 
+        // let similitud 
 
-        if(this.state.masterAPI.body){
-            // console.log(this.state.masterAPI.body.FaceMatches)            
-            this.state.masterAPI.body.FaceMatches.map(
-                // (order) => console.log(order.Similarity)
-                (order) => similitud = order.Similarity
-            )
-        }
+        // if(this.state.masterAPI.body){
+        //     // console.log(this.state.masterAPI.body.FaceMatches)            
+        //     this.state.masterAPI.body.FaceMatches.map(
+        //         // (order) => console.log(order.Similarity)
+        //         (order) => similitud = order.Similarity
+        //     )
+        // }
 
         return (
             <Col md={12}>
@@ -1641,21 +1700,22 @@ class MasterTable extends React.Component{
                 <Row>
                     <Col md={6}>
                         <Row>
-                            <img src={"http://localhost:8084/"+"img_avatar.png"}  alt="Avatar" style={{"width":"50%","padding-left":"10px","padding-right":"10px"}}/>
+                            <h4>{'Last Modified: '+this.state.textLeft+' '}</h4>
+                            {/* <img src={"http://localhost:8084/"+"img_avatar.png"}  alt="Avatar" style={{"width":"50%","padding-left":"10px","padding-right":"10px"}}/> */}
                             {/* <img src={"https://webpaa-deployments-mobilehub-2128298286.s3.amazonaws.com/1547544106_973174_1547545265_noticia_normal.jpg"}  alt="Avatar" style={{"width":"50%","padding-left":"10px","padding-right":"10px"}}/> */}
                         </Row>
                         <br/>
                         <Row>
-                            <input type="file" onChange={this.fileSelectedHandler} />
+                            {/* <input type="file" onChange={this.fileSelectedHandler} /> */}
                         </Row>
                     </Col>
                     <Col md={6}>
                         <Row>
-                            <img src={"http://localhost:8084/"+"img_avatar.png"}  alt="Avatar" style={{"width":"50%","padding-left":"10px","padding-right":"10px"}}/>
+                            {/* <img src={"http://localhost:8084/"+"img_avatar.png"}  alt="Avatar" style={{"width":"50%","padding-left":"10px","padding-right":"10px"}}/> */}
                         </Row>
                         <br/>
                         <Row>
-                            <input type="file" onChange={this.fileSelectedHandler} />
+                            {/* <input type="file" onChange={this.fileSelectedHandler} /> */}
                         </Row>
                     </Col>
                 </Row>                

@@ -40,7 +40,8 @@ var ListGroup = ReactBootstrap.ListGroup;
 var Table = ReactBootstrap.Table;
 var Jumbotron = ReactBootstrap.Jumbotron;
 
-var albumBucketName = "webpaa-deployments-mobilehub-2128298286";
+// var albumBucketName = "webpaa-deployments-mobilehub-2128298286";
+var albumBucketName = "webpaa-deployments-mobilehub-209995345";
 var bucketRegion = "us-east-1";
 var IdentityPoolId = "us-east-1:3dd5b3b8-326c-4be6-9f32-67943932637a";
 
@@ -2032,7 +2033,10 @@ var MasterTable = function (_React$Component15) {
             searchData: "",
             processOne: "",
             processTwo: "",
-            processThree: ""
+            processThree: "",
+            textLeft: "",
+            textTempLeft: "",
+            textRight: ""
         };
         return _this19;
     }
@@ -2100,6 +2104,45 @@ var MasterTable = function (_React$Component15) {
                     )
                 });
             }, 6000);
+
+            setTimeout(function () {
+
+                var compareData = [];
+
+                var params = {
+                    Bucket: albumBucketName,
+                    MaxKeys: 100
+                };
+
+                s3.listObjects(params, function (err, data) {
+                    if (err) {
+                        console.log(err, err.stack);
+                    } else {
+                        compareData = data;
+                        // console.log(data)
+                        _this20.setState({
+                            textTempLeft: data
+                        });
+                    }
+                });
+
+                // console.log(compareData);
+            }, 2000);
+
+            setTimeout(function () {
+
+                if (_this20.state.textTempLeft) {
+
+                    _this20.state.textTempLeft.Contents.map(function (text) {
+                        return (//console.log(text.LastModified)
+                            // lastMod = text.LastModified
+                            _this20.setState({
+                                textLeft: text.LastModified
+                            })
+                        );
+                    });
+                }
+            }, 4000);
         }
     }, {
         key: "fileSelectedHandler",
@@ -2149,22 +2192,31 @@ var MasterTable = function (_React$Component15) {
 
             // if(this.state.masterAPI.body.FaceMatches){
             console.log(this.state.masterAPI.body);
+            console.log(this.state.textLeft);
+
+            // let lastMod 
+            // if(this.state.textLeft){
+
+            //     this.state.textLeft.Contents.map(
+            //         (text) => //console.log(text.LastModified)
+            //             lastMod = text.LastModified
+            //     )
+            // }
             // }
 
             // this.state.masterAPI.body.FaceMatches.map(
             //     (order) => console.log(order)
             // )
 
-            var similitud = void 0;
+            // let similitud 
 
-            if (this.state.masterAPI.body) {
-                // console.log(this.state.masterAPI.body.FaceMatches)            
-                this.state.masterAPI.body.FaceMatches.map(
-                // (order) => console.log(order.Similarity)
-                function (order) {
-                    return similitud = order.Similarity;
-                });
-            }
+            // if(this.state.masterAPI.body){
+            //     // console.log(this.state.masterAPI.body.FaceMatches)            
+            //     this.state.masterAPI.body.FaceMatches.map(
+            //         // (order) => console.log(order.Similarity)
+            //         (order) => similitud = order.Similarity
+            //     )
+            // }
 
             return React.createElement(
                 Col,
@@ -2241,29 +2293,21 @@ var MasterTable = function (_React$Component15) {
                         React.createElement(
                             Row,
                             null,
-                            React.createElement("img", { src: "http://localhost:8084/" + "img_avatar.png", alt: "Avatar", style: { "width": "50%", "padding-left": "10px", "padding-right": "10px" } })
+                            React.createElement(
+                                "h4",
+                                null,
+                                'Last Modified: ' + this.state.textLeft + ' '
+                            )
                         ),
                         React.createElement("br", null),
-                        React.createElement(
-                            Row,
-                            null,
-                            React.createElement("input", { type: "file", onChange: this.fileSelectedHandler })
-                        )
+                        React.createElement(Row, null)
                     ),
                     React.createElement(
                         Col,
                         { md: 6 },
-                        React.createElement(
-                            Row,
-                            null,
-                            React.createElement("img", { src: "http://localhost:8084/" + "img_avatar.png", alt: "Avatar", style: { "width": "50%", "padding-left": "10px", "padding-right": "10px" } })
-                        ),
+                        React.createElement(Row, null),
                         React.createElement("br", null),
-                        React.createElement(
-                            Row,
-                            null,
-                            React.createElement("input", { type: "file", onChange: this.fileSelectedHandler })
-                        )
+                        React.createElement(Row, null)
                     )
                 )
             );
