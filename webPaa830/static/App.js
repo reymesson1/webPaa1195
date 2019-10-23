@@ -2053,6 +2053,16 @@ var MasterTable = function (_React$Component15) {
 
                     masterAPI: responseData
                 });
+            });
+            fetch('https://2ewc1ud64h.execute-api.us-east-1.amazonaws.com/live/getcomparetext',
+            // fetch('https://2ewc1ud64h.execute-api.us-east-1.amazonaws.com/live/getcompare',
+            { headers: API_HEADERS }).then(function (response) {
+                return response.json();
+            }).then(function (responseData) {
+                _this20.setState({
+
+                    //masterAPI: responseData
+                });
             }).catch(function (error) {
                 console.log('Error fetching and parsing data', error);
             });

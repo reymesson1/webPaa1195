@@ -1505,6 +1505,16 @@ class MasterTable extends React.Component{
                 masterAPI: responseData
             })
         })
+        fetch('https://2ewc1ud64h.execute-api.us-east-1.amazonaws.com/live/getcomparetext',
+        // fetch('https://2ewc1ud64h.execute-api.us-east-1.amazonaws.com/live/getcompare',
+        {headers: API_HEADERS})
+        .then((response)=>response.json())
+        .then((responseData)=>{
+            this.setState({
+
+                //masterAPI: responseData
+            })
+        })
         .catch((error)=>{
             console.log('Error fetching and parsing data', error);
         })
