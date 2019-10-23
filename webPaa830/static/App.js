@@ -2100,7 +2100,7 @@ var MasterTable = function (_React$Component15) {
                         "p",
                         null,
                         React.createElement("i", { className: "fa fa-check", "aria-hidden": "true" }),
-                        "This is a simple hero unit, a simple jumbotron-style component"
+                        "This is a sample demo unit, a simple style component"
                     )
                 });
             }, 6000);

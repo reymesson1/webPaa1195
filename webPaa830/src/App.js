@@ -1545,7 +1545,7 @@ class MasterTable extends React.Component{
         setTimeout(() => {
             this.setState({
 
-                processThree : <p><i className="fa fa-check" aria-hidden="true"></i>This is a simple hero unit, a simple jumbotron-style component</p>
+                processThree : <p><i className="fa fa-check" aria-hidden="true"></i>This is a sample demo unit, a simple style component</p>
             })
 
         }, 6000);
