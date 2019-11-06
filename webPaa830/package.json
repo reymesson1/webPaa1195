@@ -36,7 +36,7 @@
     "jwt-simple": "^0.5.1",
     "moment": "^2.18.1",
     "mongodb": "^2.2.33",
-    "mongoose": "^5.2.14",
+    "mongoose": "^5.7.5",
     "react-aws-s3-uploader": "^1.0.3"
   },
   "devDependencies": {
