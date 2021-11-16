@@ -27,7 +27,7 @@
   "homepage": "https://github.com/vasansr/pro-mern-stack#readme",
   "dependencies": {
     "amazon-cognito-identity-js": "^3.0.15",
-    "aws-sdk": "^2.549.0",
+    "aws-sdk": "^2.814.0",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.18.2",
     "cors": "^2.8.5",
